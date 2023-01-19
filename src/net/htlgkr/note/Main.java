@@ -1,14 +1,13 @@
-package net.htlgkr.notenundgame;
+package net.htlgkr.note;
 
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args){
-        Scanner input = new Scanner(System.in);;
-        System.out.println(Punktezahlen.marklist);
-        System.out.println("Enter points: ");
-        double points = input.nextDouble();
-        double mark = Punktezahlen.getMarkFromPoints(points);
-        System.out.println("Mark: " + mark);
+        System.out.println(Punktezahlen.MARKLIST);
+
+        for (double points = 0; points <= 120; points = points+0.5){
+            System.out.println("Points: " + points + " -> Mark: " + Punktezahlen.getMarkFromPoints(points));
+        }
     }
 }

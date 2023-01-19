@@ -1,2 +1,5 @@
-package net.htlgkr.game;public enum Directions {
+package net.htlgkr.game;
+
+public enum Directions {
+    UP, RIGHT, DOWN, LEFT;
 }

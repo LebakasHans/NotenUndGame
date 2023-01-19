@@ -1,13 +1,13 @@
-package net.htlgkr.notenundgame;
+package net.htlgkr.note;
 
 public class Punktezahlen {
-    final static String marklist = """
+    final static String MARKLIST = """
             +-----+---------------+
             |Note |   Punkte      |
             +-----+---------------+
             |5,0  |   0 - 49,5    |
             |4,7  |   50 - 59,5   |
-            |4,0  |   59,5 - 64,5 |
+            |4,0  |   60 - 64,5   |
             |3,7  |   65 - 69,5   |
             |3,3  |   70 - 74,5   |
             |3,0  |   75 - 79,5   |
