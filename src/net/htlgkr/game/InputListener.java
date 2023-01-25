@@ -1,7 +1,6 @@
 package net.htlgkr.game;
 
 import java.io.IOException;
-import java.util.Scanner;
 
 public class InputListener implements Runnable{
     private Game game;
@@ -21,7 +20,7 @@ public class InputListener implements Runnable{
                 }
             }while (true);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+
         }
     }
 }

@@ -12,7 +12,8 @@ public class Game {
     static final char TREASURE_SYMBOL = 'S';
     final int BATTLE_PREPARE_TIME;
     final int BATTLE_TIME;
-    static final int TICK_TIME = 100;
+    final double SPAWN_CHANCE;
+    static final int TICK_TIME = 10;
 
     static final String WIN_SCREEN = """
             ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
@@ -24,31 +25,31 @@ public class Game {
             ░░░░╚═╝░░░░╚════╝░░╚═════╝░░░░░░░░░░░░╚═╝░░░╚═╝░░░╚════╝░╚═╝░░╚══╝░
             ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░""";
     static final String GAME_OVER = """
-            ┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼
-            ███▀▀▀██┼███▀▀▀███┼███▀█▄█▀███┼██▀▀▀
-            ██┼┼┼┼██┼██┼┼┼┼┼██┼██┼┼┼█┼┼┼██┼██┼┼┼
-            ██┼┼┼▄▄▄┼██▄▄▄▄▄██┼██┼┼┼▀┼┼┼██┼██▀▀▀
-            ██┼┼┼┼██┼██┼┼┼┼┼██┼██┼┼┼┼┼┼┼██┼██┼┼┼
-            ███▄▄▄██┼██┼┼┼┼┼██┼██┼┼┼┼┼┼┼██┼██▄▄▄
-            ┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼
-            ███▀▀▀███┼▀███┼┼██▀┼██▀▀▀┼██▀▀▀▀██▄┼
-            ██┼┼┼┼┼██┼┼┼██┼┼██┼┼██┼┼┼┼██┼┼┼┼┼██┼
-            ██┼┼┼┼┼██┼┼┼██┼┼██┼┼██▀▀▀┼██▄▄▄▄▄▀▀┼
-            ██┼┼┼┼┼██┼┼┼██┼┼█▀┼┼██┼┼┼┼██┼┼┼┼┼██┼
-            ███▄▄▄███┼┼┼─▀█▀┼┼─┼██▄▄▄┼██┼┼┼┼┼██▄
-            ┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼
-            ┼┼┼┼┼┼┼┼██┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼██┼┼┼┼┼┼┼┼┼
-            ┼┼┼┼┼┼████▄┼┼┼▄▄▄▄▄▄▄┼┼┼▄████┼┼┼┼┼┼┼
-            ┼┼┼┼┼┼┼┼┼▀▀█▄█████████▄█▀▀┼┼┼┼┼┼┼┼┼┼
-            ┼┼┼┼┼┼┼┼┼┼┼█████████████┼┼┼┼┼┼┼┼┼┼┼┼
-            ┼┼┼┼┼┼┼┼┼┼┼██▀▀▀███▀▀▀██┼┼┼┼┼┼┼┼┼┼┼┼
-            ┼┼┼┼┼┼┼┼┼┼┼██┼┼┼███┼┼┼██┼┼┼┼┼┼┼┼┼┼┼┼
-            ┼┼┼┼┼┼┼┼┼┼┼█████▀▄▀█████┼┼┼┼┼┼┼┼┼┼┼┼
-            ┼┼┼┼┼┼┼┼┼┼┼┼███████████┼┼┼┼┼┼┼┼┼┼┼┼┼
-            ┼┼┼┼┼┼┼┼▄▄▄██┼┼█▀█▀█┼┼██▄▄▄┼┼┼┼┼┼┼┼┼
-            ┼┼┼┼┼┼┼┼▀▀██┼┼┼┼┼┼┼┼┼┼┼██▀▀┼┼┼┼┼┼┼┼┼
-            ┼┼┼┼┼┼┼┼┼┼▀▀┼┼┼┼┼┼┼┼┼┼┼▀▀┼┼┼┼┼┼┼┼┼┼┼
-            ┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼""";
+            ┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼
+            ┼███▀▀▀██┼███▀▀▀███┼███▀█▄█▀███┼██▀▀▀┼
+            ┼██┼┼┼┼██┼██┼┼┼┼┼██┼██┼┼┼█┼┼┼██┼██┼┼┼┼
+            ┼██┼┼┼▄▄▄┼██▄▄▄▄▄██┼██┼┼┼▀┼┼┼██┼██▀▀▀┼
+            ┼██┼┼┼┼██┼██┼┼┼┼┼██┼██┼┼┼┼┼┼┼██┼██┼┼┼┼
+            ┼███▄▄▄██┼██┼┼┼┼┼██┼██┼┼┼┼┼┼┼██┼██▄▄▄┼
+            ┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼
+            ┼███▀▀▀███┼▀███┼┼██▀┼██▀▀▀┼██▀▀▀▀██▄┼┼
+            ┼██┼┼┼┼┼██┼┼┼██┼┼██┼┼██┼┼┼┼██┼┼┼┼┼██┼┼
+            ┼██┼┼┼┼┼██┼┼┼██┼┼██┼┼██▀▀▀┼██▄▄▄▄▄▀▀┼┼
+            ┼██┼┼┼┼┼██┼┼┼██┼┼█▀┼┼██┼┼┼┼██┼┼┼┼┼██┼┼
+            ┼███▄▄▄███┼┼┼─▀█▀┼┼─┼██▄▄▄┼██┼┼┼┼┼██▄┼
+            ┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼
+            ┼┼┼┼┼┼┼┼┼██┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼██┼┼┼┼┼┼┼┼┼┼
+            ┼┼┼┼┼┼████▄┼┼┼▄▄▄▄▄▄▄┼┼┼▄████┼┼┼┼┼┼┼┼┼
+            ┼┼┼┼┼┼┼┼┼▀▀█▄█████████▄█▀▀┼┼┼┼┼┼┼┼┼┼┼┼
+            ┼┼┼┼┼┼┼┼┼┼┼█████████████┼┼┼┼┼┼┼┼┼┼┼┼┼┼
+            ┼┼┼┼┼┼┼┼┼┼┼██▀▀▀███▀▀▀██┼┼┼┼┼┼┼┼┼┼┼┼┼┼
+            ┼┼┼┼┼┼┼┼┼┼┼██┼┼┼███┼┼┼██┼┼┼┼┼┼┼┼┼┼┼┼┼┼
+            ┼┼┼┼┼┼┼┼┼┼┼█████▀▄▀█████┼┼┼┼┼┼┼┼┼┼┼┼┼┼
+            ┼┼┼┼┼┼┼┼┼┼┼┼███████████┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼
+            ┼┼┼┼┼┼┼┼▄▄▄██┼┼█▀█▀█┼┼██▄▄▄┼┼┼┼┼┼┼┼┼┼┼
+            ┼┼┼┼┼┼┼┼▀▀██┼┼┼┼┼┼┼┼┼┼┼██▀▀┼┼┼┼┼┼┼┼┼┼┼
+            ┼┼┼┼┼┼┼┼┼┼▀▀┼┼┼┼┼┼┼┼┼┼┼▀▀┼┼┼┼┼┼┼┼┼┼┼┼┼
+            ┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼""";
 
     private String map = """
                 ########################################
@@ -78,6 +79,7 @@ public class Game {
     public Game(Difficulty difficulty) {
         this.BATTLE_PREPARE_TIME = difficulty.getBattlePrepareTime();
         this.BATTLE_TIME = difficulty.getBattleTime();
+        this.SPAWN_CHANCE = difficulty.getEnemySpawnChance();
     }
 
     public boolean isGameRunning() {
@@ -100,24 +102,28 @@ public class Game {
     //moveSpacesToLeftOrRight positive value = Right negative value = Left
     //movesSpacesUpOrDown positive value = Down negative value = Up
     private boolean movePlayerTo(int moveSpacesToLeftOrRight, int movesSpacesUpOrDown) {
-        boolean movePossible;
-        int xPositionOfPlayer = getXPositionOfPlayer();
-        int yPositionOfPlayer = getYPositionOfPlayer();
-        char charOfPlaceToMove = getCharOfPosition(xPositionOfPlayer + moveSpacesToLeftOrRight, yPositionOfPlayer + movesSpacesUpOrDown);
+        if (gameRunning) {
 
-        if (charOfPlaceToMove == ' '){
-            movePossible = true;
-            mapLines.get(yPositionOfPlayer).setCharAt(xPositionOfPlayer, ' ');
-            mapLines.get(yPositionOfPlayer + movesSpacesUpOrDown).setCharAt(xPositionOfPlayer + moveSpacesToLeftOrRight, PLAYER_SYMBOL);
-        } else if (charOfPlaceToMove == TREASURE_SYMBOL) {
-            movePossible = true;
-            gameRunning = false;
-            gameWon();
-        } else {
-            movePossible = false;
+            boolean movePossible;
+            int xPositionOfPlayer = getXPositionOfPlayer();
+            int yPositionOfPlayer = getYPositionOfPlayer();
+            char charOfPlaceToMove = getCharOfPosition(xPositionOfPlayer + moveSpacesToLeftOrRight, yPositionOfPlayer + movesSpacesUpOrDown);
+
+            if (charOfPlaceToMove == ' ') {
+                movePossible = true;
+                mapLines.get(yPositionOfPlayer).setCharAt(xPositionOfPlayer, ' ');
+                mapLines.get(yPositionOfPlayer + movesSpacesUpOrDown).setCharAt(xPositionOfPlayer + moveSpacesToLeftOrRight, PLAYER_SYMBOL);
+            } else if (charOfPlaceToMove == TREASURE_SYMBOL) {
+                movePossible = true;
+                gameRunning = false;
+                gameWon();
+            } else {
+                movePossible = false;
+            }
+            afterMoveProcess();
+            return movePossible;
         }
-        afterMoveProcess();
-        return movePossible;
+        return false;
     }
 
     private void gameWon() {
@@ -143,15 +149,36 @@ public class Game {
             battle();
         }
 
-        moveEnemies();
+        if (gameRunning) {
+            spawnEnemy();
 
-        //did an enemy move next to the player
-        if(isPlayerNextToEnemy()){
-            printMap();
-            battle();
+            moveEnemies();
+
+            //did an enemy move next to the player
+            if (isPlayerNextToEnemy()) {
+                printMap();
+                battle();
+            }
+            if (gameRunning)
+                printMap();
         }
-        if(gameRunning)
-            printMap();
+    }
+
+    private void spawnEnemy() {
+        Random random = new Random();
+        boolean spawn = random.nextDouble() < SPAWN_CHANCE ? true : false;
+        if (spawn) {
+            boolean isPositionValid = false;
+            do {
+                int y = random.nextInt(mapLines.size());
+                int x = random.nextInt(mapLines.get(0).length());
+                if (getCharOfPosition(x, y) == ' ') {
+                    System.out.println("An enemy has spawned");
+                    setCharOfPosition(x, y, ENEMY_SYMBOL);
+                }
+            } while (isPositionValid);
+
+        }
     }
 
     private void moveEnemies() {
@@ -234,7 +261,9 @@ public class Game {
         System.out.println("You have to press the letter " + randomLetter + " in " + BATTLE_TIME /1000 + " seconds to win the battle");
         long startTime = System.currentTimeMillis();
         Thread inputListener = new Thread(new InputListener(this));
+
         inputListener.start();
+
         boolean wonBattle = false;
         while (System.currentTimeMillis() < startTime + BATTLE_TIME) {
             if (inputFromListener == randomLetter) {
