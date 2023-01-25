@@ -10,8 +10,8 @@ public class Game {
     static final char ENEMY_SYMBOL = 'X';
     static final char PLAYER_SYMBOL = '@';
     static final char TREASURE_SYMBOL = 'S';
-    static final int BATTLE_PREPARE_TIME = 2000;
-    static final int BATTLE_TIME = 500000000;
+    final int BATTLE_PREPARE_TIME;
+    final int BATTLE_TIME;
     static final int TICK_TIME = 100;
 
     static final String WIN_SCREEN = """
@@ -74,6 +74,11 @@ public class Game {
             .collect(Collectors.toList());
     private boolean gameRunning = true;
     private int inputFromListener = -1;
+
+    public Game(Difficulty difficulty) {
+        this.BATTLE_PREPARE_TIME = difficulty.getBattlePrepareTime();
+        this.BATTLE_TIME = difficulty.getBattleTime();
+    }
 
     public boolean isGameRunning() {
         return gameRunning;

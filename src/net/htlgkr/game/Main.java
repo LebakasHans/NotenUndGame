@@ -3,13 +3,14 @@ package net.htlgkr.game;
 import java.util.Scanner;
 
 public class Main {
+    private static Scanner scanner = new Scanner(System.in);
+
     /**
      *  I do not see any kind of problem with this method
      */
     public static void main(String[] args){
-        char test = 10;
-        Scanner scanner = new Scanner(System.in);
-        Game game = new Game();
+        Difficulty difficulty = chooseDifficulty();
+        Game game = new Game(difficulty);
         game.printLegend();
 
         game.printMap();
@@ -42,6 +43,25 @@ public class Main {
         }while (game.isGameRunning());
 
         scanner.close();
+    }
+
+    private static Difficulty chooseDifficulty() {
+        Difficulty difficulty = null;
+        do {
+            try {
+                System.out.println("Which Difficulty would you like to play");
+                System.out.println("Easy ... if you are looser");
+                System.out.println("Medium ... still a looser");
+                System.out.println("Hard ... you are getting bullied");
+                System.out.println("Masochist ... you are the bully");
+                difficulty = Difficulty.valueOf(
+                        scanner.nextLine().toUpperCase().trim()
+                );
+            } catch (IllegalArgumentException e){
+                System.err.println("Invalid Input try again");
+            }
+        }while (difficulty == null);
+        return difficulty;
     }
 
     private static boolean useFastFunction(String input) {
