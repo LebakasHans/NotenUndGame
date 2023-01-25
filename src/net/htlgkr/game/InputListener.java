@@ -13,9 +13,13 @@ public class InputListener implements Runnable{
     @Override
     public void run() {
         try {
-            Scanner scanner = new Scanner(System.in);
-            int pressedKey = System.in.read();
-            game.setInputFromListener(pressedKey);
+            do{
+                int pressedKey = System.in.read();
+                if (Character.isLetter((char) pressedKey)) {
+                    game.setInputFromListener(pressedKey);
+                    break;
+                }
+            }while (true);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

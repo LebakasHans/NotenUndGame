@@ -1,5 +1,5 @@
 package net.htlgkr.game;
 
 public enum Direction {
-    UP, RIGHT, DOWN, LEFT;
+    UP, RIGHT, DOWN, LEFT
 }

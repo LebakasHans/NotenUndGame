@@ -13,6 +13,16 @@ public class Game {
     static final int BATTLE_PREPARE_TIME = 2000;
     static final int BATTLE_TIME = 500000000;
     static final int TICK_TIME = 100;
+
+    static final String WIN_SCREEN = """
+            ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+            ░██╗░░░██╗░█████╗░██╗░░░██╗░░░░░░░░░██╗░░░░░░░██╗░█████╗░███╗░░██╗░
+            ░╚██╗░██╔╝██╔══██╗██║░░░██║░░░░░░░░░██║░░██╗░░██║██╔══██╗████╗░██║░
+            ░░╚████╔╝░██║░░██║██║░░░██║░░░░░░░░░╚██╗████╗██╔╝██║░░██║██╔██╗██║░
+            ░░░╚██╔╝░░██║░░██║██║░░░██║░░░░░░░░░░████╔═████║░██║░░██║██║╚████║░
+            ░░░░██║░░░╚█████╔╝╚██████╔╝░░░░░░░░░░╚██╔╝░╚██╔╝░╚█████╔╝██║░╚███║░
+            ░░░░╚═╝░░░░╚════╝░░╚═════╝░░░░░░░░░░░░╚═╝░░░╚═╝░░░╚════╝░╚═╝░░╚══╝░
+            ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░""";
     static final String GAME_OVER = """
             ┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼
             ███▀▀▀██┼███▀▀▀███┼███▀█▄█▀███┼██▀▀▀
@@ -43,7 +53,7 @@ public class Game {
     private String map = """
                 ########################################
                 ####  ##########    ### S   ###        #
-                ####  ##########    ###     X          #
+                ####  ##########    ### @   X          #
                 ####  ##########    ###     ###        #
                 ####  ########## X  ###########        #
                 ####  ##########    ########### X      #
@@ -55,8 +65,8 @@ public class Game {
                 #     ########## ######  ##########    #
                 #     ########## ###### X##########    #
                 #     ########## ######  ##########    #
-                #X    ########## ######  ##########    #
-                #@X   ########## ######  ##########    #
+                #     ########## ######  ##########    #
+                #     ########## ######  ##########    #
                 ########################################""";
 
     List<StringBuilder> mapLines = Arrays.stream(map.split("\n"))
@@ -94,16 +104,19 @@ public class Game {
             movePossible = true;
             mapLines.get(yPositionOfPlayer).setCharAt(xPositionOfPlayer, ' ');
             mapLines.get(yPositionOfPlayer + movesSpacesUpOrDown).setCharAt(xPositionOfPlayer + moveSpacesToLeftOrRight, PLAYER_SYMBOL);
-
-            if (charOfPlaceToMove == TREASURE_SYMBOL){
-                gameRunning = false;
-                //TODO end game method maybe
-            }
+        } else if (charOfPlaceToMove == TREASURE_SYMBOL) {
+            movePossible = true;
+            gameRunning = false;
+            gameWon();
         } else {
             movePossible = false;
         }
         afterMoveProcess();
         return movePossible;
+    }
+
+    private void gameWon() {
+        System.out.println(WIN_SCREEN);
     }
 
     private char getCharOfPosition(int x, int y){
@@ -217,12 +230,12 @@ public class Game {
         long startTime = System.currentTimeMillis();
         Thread inputListener = new Thread(new InputListener(this));
         inputListener.start();
-        boolean wonBattle;
+        boolean wonBattle = false;
         while (System.currentTimeMillis() < startTime + BATTLE_TIME) {
             if (inputFromListener == randomLetter) {
                 wonBattle = true;
                 break;
-            } else if (inputFromListener > 0 && inputFromListener != randomLetter) {
+            } else if (inputFromListener > 0) {
                 wonBattle = false;
                 break;
             }
@@ -230,7 +243,9 @@ public class Game {
         }
         inputFromListener = -1;
         inputListener.interrupt();
-        if (System.currentTimeMillis() >= startTime + BATTLE_TIME) {
+        if (wonBattle) {
+            wonBattle();
+        } else {
             lostBattle();
         }
     }
