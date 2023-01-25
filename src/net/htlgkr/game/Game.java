@@ -10,7 +10,35 @@ public class Game {
     static final char ENEMY_SYMBOL = 'X';
     static final char PLAYER_SYMBOL = '@';
     static final char TREASURE_SYMBOL = 'S';
-    private boolean gameRunning = true;
+    static final int BATTLE_PREPARE_TIME = 2000;
+    static final int BATTLE_TIME = 500000000;
+    static final int TICK_TIME = 100;
+    static final String GAME_OVER = """
+            ┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼
+            ███▀▀▀██┼███▀▀▀███┼███▀█▄█▀███┼██▀▀▀
+            ██┼┼┼┼██┼██┼┼┼┼┼██┼██┼┼┼█┼┼┼██┼██┼┼┼
+            ██┼┼┼▄▄▄┼██▄▄▄▄▄██┼██┼┼┼▀┼┼┼██┼██▀▀▀
+            ██┼┼┼┼██┼██┼┼┼┼┼██┼██┼┼┼┼┼┼┼██┼██┼┼┼
+            ███▄▄▄██┼██┼┼┼┼┼██┼██┼┼┼┼┼┼┼██┼██▄▄▄
+            ┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼
+            ███▀▀▀███┼▀███┼┼██▀┼██▀▀▀┼██▀▀▀▀██▄┼
+            ██┼┼┼┼┼██┼┼┼██┼┼██┼┼██┼┼┼┼██┼┼┼┼┼██┼
+            ██┼┼┼┼┼██┼┼┼██┼┼██┼┼██▀▀▀┼██▄▄▄▄▄▀▀┼
+            ██┼┼┼┼┼██┼┼┼██┼┼█▀┼┼██┼┼┼┼██┼┼┼┼┼██┼
+            ███▄▄▄███┼┼┼─▀█▀┼┼─┼██▄▄▄┼██┼┼┼┼┼██▄
+            ┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼
+            ┼┼┼┼┼┼┼┼██┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼██┼┼┼┼┼┼┼┼┼
+            ┼┼┼┼┼┼████▄┼┼┼▄▄▄▄▄▄▄┼┼┼▄████┼┼┼┼┼┼┼
+            ┼┼┼┼┼┼┼┼┼▀▀█▄█████████▄█▀▀┼┼┼┼┼┼┼┼┼┼
+            ┼┼┼┼┼┼┼┼┼┼┼█████████████┼┼┼┼┼┼┼┼┼┼┼┼
+            ┼┼┼┼┼┼┼┼┼┼┼██▀▀▀███▀▀▀██┼┼┼┼┼┼┼┼┼┼┼┼
+            ┼┼┼┼┼┼┼┼┼┼┼██┼┼┼███┼┼┼██┼┼┼┼┼┼┼┼┼┼┼┼
+            ┼┼┼┼┼┼┼┼┼┼┼█████▀▄▀█████┼┼┼┼┼┼┼┼┼┼┼┼
+            ┼┼┼┼┼┼┼┼┼┼┼┼███████████┼┼┼┼┼┼┼┼┼┼┼┼┼
+            ┼┼┼┼┼┼┼┼▄▄▄██┼┼█▀█▀█┼┼██▄▄▄┼┼┼┼┼┼┼┼┼
+            ┼┼┼┼┼┼┼┼▀▀██┼┼┼┼┼┼┼┼┼┼┼██▀▀┼┼┼┼┼┼┼┼┼
+            ┼┼┼┼┼┼┼┼┼┼▀▀┼┼┼┼┼┼┼┼┼┼┼▀▀┼┼┼┼┼┼┼┼┼┼┼
+            ┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼""";
 
     private String map = """
                 ########################################
@@ -27,13 +55,23 @@ public class Game {
                 #     ########## ######  ##########    #
                 #     ########## ###### X##########    #
                 #     ########## ######  ##########    #
-                #     ########## ######  ##########    #
-                #@    ########## ######  ##########    #
+                #X    ########## ######  ##########    #
+                #@X   ########## ######  ##########    #
                 ########################################""";
 
     List<StringBuilder> mapLines = Arrays.stream(map.split("\n"))
             .map(StringBuilder::new)
             .collect(Collectors.toList());
+    private boolean gameRunning = true;
+    private int inputFromListener = -1;
+
+    public boolean isGameRunning() {
+        return gameRunning;
+    }
+
+    public void setInputFromListener(int inputFromListener) {
+        this.inputFromListener = inputFromListener;
+    }
 
     public boolean movePlayer(Direction direction){
         return switch (direction) {
@@ -82,16 +120,20 @@ public class Game {
 
     private void afterMoveProcess() {
         //did the player move next to an enemy
-        if(nextToEnemy()){
+        if(isPlayerNextToEnemy()){
+            printMap();
             battle();
         }
 
         moveEnemies();
 
         //did an enemy move next to the player
-        if(nextToEnemy()){
+        if(isPlayerNextToEnemy()){
+            printMap();
             battle();
         }
+        if(gameRunning)
+            printMap();
     }
 
     private void moveEnemies() {
@@ -165,10 +207,65 @@ public class Game {
     }
 
     private void battle() {
-
+        System.out.println("You have encountered an Enemy");
+        System.out.println("You will have to fight in " + BATTLE_PREPARE_TIME /1000 + " seconds");
+        myWait(BATTLE_PREPARE_TIME);
+        System.out.println("The epic battle starts");
+        Random rand = new Random();
+        char randomLetter = (char)(rand.nextInt(26) + 'a');
+        System.out.println("You have to press the letter " + randomLetter + " in " + BATTLE_TIME /1000 + " seconds to win the battle");
+        long startTime = System.currentTimeMillis();
+        Thread inputListener = new Thread(new InputListener(this));
+        inputListener.start();
+        boolean wonBattle;
+        while (System.currentTimeMillis() < startTime + BATTLE_TIME) {
+            if (inputFromListener == randomLetter) {
+                wonBattle = true;
+                break;
+            } else if (inputFromListener > 0 && inputFromListener != randomLetter) {
+                wonBattle = false;
+                break;
+            }
+            myWait(TICK_TIME);
+        }
+        inputFromListener = -1;
+        inputListener.interrupt();
+        if (System.currentTimeMillis() >= startTime + BATTLE_TIME) {
+            lostBattle();
+        }
     }
 
-    private boolean nextToEnemy() {
+    private void lostBattle() {
+        System.out.println("You have lost the battle and died");
+        System.out.println(GAME_OVER);
+        gameRunning = false;
+    }
+
+    private void wonBattle() {
+        System.out.println("You have won the battle");
+        deleteDefeatedEnemy();
+    }
+
+    private void deleteDefeatedEnemy() {
+        if(getCharOfPosition(getXPositionOfPlayer(), getYPositionOfPlayer() -1) == ENEMY_SYMBOL)
+            setCharOfPosition(getXPositionOfPlayer(), getYPositionOfPlayer() - 1, ' ');
+        else if(getCharOfPosition(getXPositionOfPlayer(), getYPositionOfPlayer() + 1) == ENEMY_SYMBOL)
+            setCharOfPosition(getXPositionOfPlayer(), getYPositionOfPlayer() + 1, ' ');
+        else if(getCharOfPosition(getXPositionOfPlayer() + 1, getYPositionOfPlayer()) == ENEMY_SYMBOL)
+            setCharOfPosition(getXPositionOfPlayer() + 1, getYPositionOfPlayer(), ' ');
+        else if(getCharOfPosition(getXPositionOfPlayer() - 1, getYPositionOfPlayer()) == ENEMY_SYMBOL)
+            setCharOfPosition(getXPositionOfPlayer() - 1, getYPositionOfPlayer(), ' ');
+        if (isPlayerNextToEnemy()){
+            battle();
+        }
+    }
+
+    private void myWait(int battlePrepareTime) {
+        long startTime = System.currentTimeMillis();
+        while (System.currentTimeMillis() < startTime + battlePrepareTime);
+    }
+
+    private boolean isPlayerNextToEnemy() {
         boolean enemyAbove = getCharOfPosition(getXPositionOfPlayer(), getYPositionOfPlayer() -1) == ENEMY_SYMBOL ? true : false;
         boolean enemyBelow = getCharOfPosition(getXPositionOfPlayer(), getYPositionOfPlayer() + 1) == ENEMY_SYMBOL ? true : false;
         boolean enemyRight = getCharOfPosition(getXPositionOfPlayer() + 1, getYPositionOfPlayer()) == ENEMY_SYMBOL ? true : false;
@@ -204,5 +301,15 @@ public class Game {
     public void printMap(){
         mapLines.stream()
                 .forEach(System.out::println);
+    }
+
+    public void printLegend() {
+        System.out.println("UP ... Go up");
+        System.out.println("DOWN ... Go down");
+        System.out.println("LEFT ... Go left");
+        System.out.println("RIGHT ... Go right");
+        System.out.println("[DIRECTION] [Number of spaces to go] ... Example RIGHT 5");
+        System.out.println("If you use the fast move function the enemies will also move n times");
+        System.out.println("Tipp .. you don't need to write in upper case");
     }
 }

@@ -1,29 +1,46 @@
 package net.htlgkr.game;
 
-import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
+    /**
+     *  I do not see any kind of problem with this method
+     */
     public static void main(String[] args){
-
-        loop:
-        for (int i = 0; i < 100; i++) {
-
-            continue loop;
-        }
-
+        Scanner scanner = new Scanner(System.in);
         Game game = new Game();
-        Scanner scanner = new Scanner(System.in, "UTF-8");
+        game.printLegend();
+
+        game.printMap();
+        String input;
+        Direction direction;
         do {
-            game.printMap();
-            Direction direction = Direction.valueOf(
-                    scanner.next().toUpperCase()
-            );
-            boolean moved = game.movePlayer(direction);
+            input = scanner.nextLine();
+            if (!input.equals("")) {
 
+                if (useFastFunction(input)) {
+                    int moves = Integer.parseInt(input.split(" ")[1]);
+                    direction = Direction.valueOf(
+                            input.split(" ")[0].toUpperCase()
+                    );
+                    for (int i = 0; i < moves; i++) {
+                        game.movePlayer(direction);
+                    }
+                } else {
+                    direction = Direction.valueOf(
+                            input.toUpperCase()
+                    );
+                    game.movePlayer(direction);
+                }
 
-        }while (true);
+            }
+        }while (game.isGameRunning());
+
+        scanner.close();
+    }
+
+    private static boolean useFastFunction(String input) {
+        return input.split(" ")
+                .length > 1 ? true : false;
     }
 }
