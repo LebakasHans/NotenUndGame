@@ -288,6 +288,7 @@ public class Game {
         System.out.println("You have lost the battle and died");
         System.out.println(GAME_OVER);
         gameRunning = false;
+        System.exit(1);
     }
 
     private void wonBattle() {
